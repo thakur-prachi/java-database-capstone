@@ -24,6 +24,7 @@ public class Prescription {
     private String medication;
 
     @NotNull
+    @Size(min = 3, max = 20)
     private String dosage;
 
     @Size(max = 200)

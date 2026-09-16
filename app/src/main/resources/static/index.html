@@ -1,3 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Select Role</title>
+    <link rel="icon" href="./assets/images/logo/logo.png" type="image/png" />
+    <link rel="stylesheet" href="./assets/css/index.css" />
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <script src="./js/util.js" defer></script>
+    <script src="./js/render.js" defer></script>
+    <script src="./js/components/header.js" defer></script>
+    <script src="./js/components/footer.js" defer></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="wrapper">
+        <div id="header"></div>
+
+        <main class="main-content">
+          <h2>Select Your Role</h2>
+          <button id="adminBtn" class="role-btn" onclick="selectRole('admin')">
+            Admin
+          </button>
+          <button
+            id="doctorBtn"
+            class="role-btn"
+            onclick="selectRole('doctor')"
+          >
+            Doctor
+          </button>
+          <button
+            id="patientBtn"
+            class="role-btn"
+            onclick="selectRole('patient')"
+          >
+            Patient
+          </button>
+        </main>
+
+        <div id="footer"></div>
+      </div>
+    </div>
+
+    <div id="modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span id="closeModal" class="close">&times;</span>
+        <div id="modal-body"></div>
+      </div>
+    </div>
+
+    <script type="module" src="./js/services/index.js" defer></script>
+  </body>
+</html>
+
 <!-- index.html -->
 <!-- 
 

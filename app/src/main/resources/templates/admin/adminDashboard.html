@@ -1,4 +1,78 @@
 <!-- adminDashboard.html -->
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="icon"
+      type="image/png"
+      th:href="@{/assets/images/logo/logo.png}"
+    />
+    <title>Admin Dashboard</title>
+
+    <link rel="stylesheet" th:href="@{/assets/css/adminDashboard.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
+
+    <script th:src="@{/js/render.js}" defer></script>
+    <script th:src="@{/js/util.js}" defer></script>
+    <script th:src="@{/js/components/header.js}" defer></script>
+    <script th:src="@{/js/components/footer.js}" defer></script>
+  </head>
+  <body onload="renderContent()">
+    <div class="container">
+      <div class="wrapper">
+        <div id="header"></div>
+
+        <main class="main-content">
+          <input
+            type="text"
+            id="searchBar"
+            placeholder="Search by doctor name"
+          />
+
+          <div class="filter-wrapper">
+            <select id="filterTime">
+              <option value="">Sort by Time</option>
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+            </select>
+
+            <select id="filterSpecialty">
+              <option value="">Filter by Specialty</option>
+              <option value="Cardiologist">Cardiologist</option>
+              <option value="Neurologist">Neurologist</option>
+              <option value="Orthopedist">Orthopedist</option>
+              <option value="Pediatrician">Pediatrician</option>
+              <option value="Dermatologist">Dermatologist</option>
+            </select>
+          </div>
+
+          <div id="content"></div>
+        </main>
+
+        <div id="footer"></div>
+      </div>
+    </div>
+
+    <div id="modal" class="modal" style="display: none">
+      <span id="closeModal" class="close">&times;</span>
+      <div id="modal-body"></div>
+    </div>
+
+    <script
+      type="module"
+      th:src="@{/js/services/adminDashboard.js}"
+      defer
+    ></script>
+    <script
+      type="module"
+      th:src="@{/js/components/doctorCard.js}"
+      defer
+    ></script>
+  </body>
+</html>
+
+<!-- adminDashboard.html -->
 
 <!-- 
 Step-by-Step Explanation of `adminDashboard.html`
@@ -106,4 +180,3 @@ with search, filter, and modal functionality.
     * Finish the structure by properly closing all tags.
 
  -->
-

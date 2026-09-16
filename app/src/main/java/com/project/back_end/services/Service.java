@@ -1,6 +1,35 @@
 package com.project.back_end.services;
 
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+@org.springframework.stereotype.Service
 public class Service {
+
+    private final TokenService tokenService;
+
+    public Service(TokenService tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    public ResponseEntity<Map<String, String>> validateToken(String token, String role) {
+        Map<String, String> response = new HashMap<>();
+        boolean isValid = tokenService.validateToken(token, role);
+
+        if (!isValid) {
+            response.put("error", "Invalid or expired token.");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    // validateAdmin, filterDoctor, validateAppointment, validatePatient,
+    // validatePatientLogin, filterPatient — implemented in a later lab.
+}
+
+
 // 1. **@Service Annotation**
 // The @Service annotation marks this class as a service component in Spring. This allows Spring to automatically detect it through component scanning
 // and manage its lifecycle, enabling it to be injected into controllers or other services using @Autowired or constructor injection.
@@ -63,4 +92,4 @@ public class Service {
 // This flexible method supports patient-specific querying and enhances user experience on the client side.
 
 
-}
+

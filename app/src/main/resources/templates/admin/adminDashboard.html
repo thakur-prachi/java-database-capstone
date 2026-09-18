@@ -27,17 +27,18 @@
           <input
             type="text"
             id="searchBar"
+            class="searchBar"
             placeholder="Search by doctor name"
           />
 
           <div class="filter-wrapper">
-            <select id="filterTime">
+            <select id="filterTime" class="filter-select">
               <option value="">Sort by Time</option>
               <option value="AM">AM</option>
               <option value="PM">PM</option>
             </select>
 
-            <select id="filterSpecialty">
+            <select id="filterSpecialty" class="filter-select">
               <option value="">Filter by Specialty</option>
               <option value="Cardiologist">Cardiologist</option>
               <option value="Neurologist">Neurologist</option>
@@ -55,8 +56,10 @@
     </div>
 
     <div id="modal" class="modal" style="display: none">
-      <span id="closeModal" class="close">&times;</span>
-      <div id="modal-body"></div>
+      <div class="modal-content">
+        <span id="closeModal" class="close">&times;</span>
+        <div id="modal-body"></div>
+      </div>
     </div>
 
     <script type="module" th:src="@{/js/adminDashboard.js}" defer></script>

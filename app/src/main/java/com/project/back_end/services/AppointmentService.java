@@ -1,6 +1,152 @@
 package com.project.back_end.services;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import com.project.back_end.DTO.AppointmentDTO;
+import com.project.back_end.models.Appointment;
+import com.project.back_end.models.Doctor;
+import com.project.back_end.models.Patient;
+import com.project.back_end.repo.AppointmentRepository;
+import com.project.back_end.repo.DoctorRepository;
+import com.project.back_end.repo.PatientRepository;
+
+@org.springframework.stereotype.Service
 public class AppointmentService {
+
+    private final AppointmentRepository appointmentRepository;
+    private final Service service;
+    private final TokenService tokenService;
+    private final PatientRepository patientRepository;
+    private final DoctorRepository doctorRepository;
+
+    public AppointmentService(AppointmentRepository appointmentRepository, Service service, TokenService tokenService,
+                               PatientRepository patientRepository, DoctorRepository doctorRepository) {
+        this.appointmentRepository = appointmentRepository;
+        this.service = service;
+        this.tokenService = tokenService;
+        this.patientRepository = patientRepository;
+        this.doctorRepository = doctorRepository;
+    }
+
+    @Transactional
+    public int bookAppointment(Appointment appointment) {
+        try {
+            appointmentRepository.save(appointment);
+            return 1;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<Map<String, String>> updateAppointment(Appointment appointment) {
+        Map<String, String> response = new HashMap<>();
+        Optional<Appointment> existingOpt = appointmentRepository.findById(appointment.getId());
+
+        if (existingOpt.isEmpty()) {
+            response.put("message", "Appointment not found");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        Appointment existing = existingOpt.get();
+        if (!existing.getPatient().getId().equals(appointment.getPatient().getId())) {
+            response.put("message", "Patient ID mismatch");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        int valid = service.validateAppointment(appointment);
+        if (valid == -1) {
+            response.put("message", "Doctor does not exist");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } else if (valid == 0) {
+            response.put("message", "Requested appointment time is unavailable");
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+        }
+
+        appointmentRepository.save(appointment);
+        response.put("message", "Appointment updated successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Transactional
+    public ResponseEntity<Map<String, String>> cancelAppointment(long id, String token) {
+        Map<String, String> response = new HashMap<>();
+        Optional<Appointment> appointmentOpt = appointmentRepository.findById(id);
+
+        if (appointmentOpt.isEmpty()) {
+            response.put("message", "Appointment not found");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        Appointment appointment = appointmentOpt.get();
+        String email = tokenService.extractIdentifier(token);
+        Patient patient = patientRepository.findByEmail(email);
+
+        if (patient == null || !appointment.getPatient().getId().equals(patient.getId())) {
+            response.put("message", "Unauthorized to cancel this appointment");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        appointmentRepository.delete(appointment);
+        response.put("message", "Appointment cancelled successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Transactional
+    public Map<String, Object> getAppointment(String pname, LocalDate date, String token) {
+        Map<String, Object> result = new HashMap<>();
+        String email = tokenService.extractIdentifier(token);
+        Doctor doctor = doctorRepository.findByEmail(email);
+
+        if (doctor == null) {
+            result.put("message", "Doctor not found");
+            return result;
+        }
+
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.atTime(LocalTime.MAX);
+        List<Appointment> appointments;
+
+        if (pname == null || pname.equalsIgnoreCase("null") || pname.isBlank()) {
+            appointments = appointmentRepository.findByDoctorIdAndAppointmentTimeBetween(doctor.getId(), start, end);
+        } else {
+            appointments = appointmentRepository.findByDoctorIdAndPatient_NameContainingIgnoreCaseAndAppointmentTimeBetween(doctor.getId(), pname, start, end);
+        }
+
+        List<AppointmentDTO> dtoList = new ArrayList<>();
+        for (Appointment a : appointments) {
+            dtoList.add(new AppointmentDTO(
+                    a.getId(),
+                    a.getDoctor().getId(),
+                    a.getDoctor().getName(),
+                    a.getPatient().getId(),
+                    a.getPatient().getName(),
+                    a.getPatient().getEmail(),
+                    a.getPatient().getPhone(),
+                    a.getPatient().getAddress(),
+                    a.getAppointmentTime(),
+                    a.getStatus()
+            ));
+        }
+
+        result.put("appointments", dtoList);
+        return result;
+    }
+
+    @Transactional
+    public void changeStatus(long id, int status) {
+        appointmentRepository.updateStatus(status, id);
+    }
+}
 // 1. **Add @Service Annotation**:
 //    - To indicate that this class is a service layer class for handling business logic.
 //    - The `@Service` annotation should be added before the class declaration to mark it as a Spring service component.
@@ -42,4 +188,3 @@ public class AppointmentService {
 //    - Instruction: Add `@Transactional` before this method to ensure atomicity when updating appointment status.
 
 
-}

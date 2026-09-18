@@ -40,7 +40,7 @@ public class Doctor {
     @Pattern(regexp = "^[0-9]{10}$")
     private String phone;
 
-    @ElementCollection
+    @ElementCollection(fetch = jakarta.persistence.FetchType.EAGER)
     private List<String> availableTimes;
 
     public Doctor() {}

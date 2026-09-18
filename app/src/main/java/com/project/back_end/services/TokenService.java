@@ -40,7 +40,7 @@ public class TokenService {
                 .compact();
     }
 
-    public String extractEmail(String token) {
+    public String extractIdentifier(String token) {
         return Jwts.parser()
                 .verifyWith((javax.crypto.SecretKey) getSigningKey())
                 .build()
@@ -51,7 +51,7 @@ public class TokenService {
 
     public boolean validateToken(String token, String role) {
         try {
-            String identifier = extractEmail(token);
+            String identifier = extractIdentifier(token);
 
             if (role.equalsIgnoreCase("admin")) {
                 return adminRepository.findByUsername(identifier) != null;
